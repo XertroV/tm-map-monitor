@@ -1,0 +1,9 @@
+[meta]
+name     = "Map Monitor"
+author   = "XertroV"
+category = "Records"
+version  = "0.1.0"
+
+[script]
+#__DEFINES__
+dependencies = [ "NadeoServices" ]
