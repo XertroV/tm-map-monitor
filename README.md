@@ -1,5 +1,7 @@
 # Map Monitor
 
+Pre-alpha, pre-release.
+
 Monitor maps for new players/times/records, and get notified if your records get broken!
 
 License: Public Domain
