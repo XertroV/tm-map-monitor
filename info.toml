@@ -3,6 +3,7 @@ name     = "Map Monitor"
 author   = "XertroV"
 category = "Records"
 version  = "0.1.1"
+siteid  = 308
 
 [script]
 #__DEFINES__

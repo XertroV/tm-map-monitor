@@ -80,7 +80,7 @@ class MapsTab : Tab {
         // rhs buttons
         UI::SetCursorPos(vec2(width - ctrlRhsWidth, UI::GetCursorPos().y));
         auto curr = UI::GetCursorPos();
-        NotificationsCtrlButton();
+        NotificationsCtrlButton(vec2(ctrlBtnRect.z, ctrlBtnRect.w));
         ControlButton(Icons::FloppyO + "##main-export", CoroutineFunc(this.OnClickExport));
         ctrlRhsWidth = (UI::GetCursorPos() - curr - UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing)).x;
         // ctrlRhsWidth = UI::GetItemRect().z;
@@ -89,37 +89,13 @@ class MapsTab : Tab {
         UI::Dummy(vec2());
     }
 
-    vec4 colNotifBtnBg = vec4(0.641f, 0.121f, 0.121f, 1.f);
-    vec4 colNotifBtnBgActive = vec4(0.851f, 0.192f, 0.192f, 1.000f);
-    vec4 colNotifBtnBgHovered = vec4(0.981f, 0.269f, 0.269f, 1.000f);
-
-    void NotificationsCtrlButton() {
-        auto size = vec2(ctrlBtnRect.z, ctrlBtnRect.w);
-        if (g_NbNotifications == 0) {
-            ControlButton(Icons::Inbox + "##notifs", OnClickShowNotifications, size);
-            return;
-        }
-        UI::PushStyleColor(UI::Col::Button, colNotifBtnBg);
-        UI::PushStyleColor(UI::Col::ButtonActive, colNotifBtnBgActive);
-        UI::PushStyleColor(UI::Col::ButtonHovered, colNotifBtnBgHovered);
-        ControlButton(tostring(g_NbNotifications) + "##notifs", OnClickShowNotifications, size);
-        UI::PopStyleColor(3);
-    }
-
-    bool ControlButton(const string &in label, CoroutineFunc@ onClick, vec2 size = vec2()) {
-        bool ret = UI::Button(label, size);
-        if (ret) onClick();
-        UI::SameLine();
-        return ret;
-    }
-
     void DrawMapsTable() {
         uint nCols = 10;
         if (UI::BeginTable("maps table", nCols, UI::TableFlags::SizingStretchProp)) {
             UI::TableSetupColumn("##play map btns", UI::TableColumnFlags::WidthFixed);
             UI::TableSetupColumn("Name");
             UI::TableSetupColumn("Author");
-            UI::TableSetupColumn("Monitor"); // my record, all records
+            UI::TableSetupColumn("# Watchers"); // my record, all records
             UI::TableSetupColumn("PB");
             UI::TableSetupColumn("WR");
             UI::TableSetupColumn("Your Rank");
@@ -128,6 +104,14 @@ class MapsTab : Tab {
             UI::TableSetupColumn("##maps col btns", UI::TableColumnFlags::WidthFixed);
             UI::TableHeadersRow();
 
+            // for blah
+            DrawMapsTableRow();
+
+            UI::EndTable();
+        }
+    }
+
+    void DrawMapsTableRow() {
             UI::TableNextRow();
             UI::TableNextColumn();
             if (UI::Button(Icons::FighterJet)) {
@@ -141,7 +125,8 @@ class MapsTab : Tab {
             UI::TableNextColumn();
             UI::Text("XertroV");
             UI::TableNextColumn();
-            UI::Text("All Records");
+            // UI::Text("All Records");
+            UI::Text("4");
 
             UI::TableNextColumn();
             UI::Text(Time::Format(123456));
@@ -166,18 +151,9 @@ class MapsTab : Tab {
             if (UI::Button(Icons::TrashO)) {
                 // todo
             }
-
-            UI::EndTable();
-        }
-
     }
 
-
-
-
-
-
-    void OnClickAddMap() {
+   void OnClickAddMap() {
         ShowAddMapsWindow = true;
     }
 
@@ -188,6 +164,25 @@ class MapsTab : Tab {
         OpenExplorerPath(folder);
     }
 }
+
+
+
+
+class WatchersTab : Tab {
+    WatchersTab() {
+        super("Watchers", false);
+    }
+
+    void DrawInner() override {
+        // DrawControlBar();
+        UI::Separator();
+        // DrawMapsTable();
+    }
+}
+
+
+
+
 
 string m_addMapUid;
 void RenderAddMapWindow() {
@@ -202,8 +197,21 @@ void RenderAddMapWindow() {
 }
 
 
+vec4 colNotifBtnBg = vec4(0.641f, 0.121f, 0.121f, 1.f);
+vec4 colNotifBtnBgActive = vec4(0.851f, 0.192f, 0.192f, 1.000f);
+vec4 colNotifBtnBgHovered = vec4(0.981f, 0.269f, 0.269f, 1.000f);
 
-
+void NotificationsCtrlButton(vec2 size) {
+    if (g_NbNotifications == 0) {
+        ControlButton(Icons::Inbox + "##notifs", OnClickShowNotifications, size);
+        return;
+    }
+    UI::PushStyleColor(UI::Col::Button, colNotifBtnBg);
+    UI::PushStyleColor(UI::Col::ButtonActive, colNotifBtnBgActive);
+    UI::PushStyleColor(UI::Col::ButtonHovered, colNotifBtnBgHovered);
+    ControlButton(tostring(g_NbNotifications) + "##notifs", OnClickShowNotifications, size);
+    UI::PopStyleColor(3);
+}
 
 
 void OnClickShowNotifications() {

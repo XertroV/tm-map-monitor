@@ -1,15 +1,28 @@
 void Main() {
     startnew(ClearTaskCoro);
+    // permissions check
     if (!HasPermissions()) {
         Notify("Unfortunately, you don't have the required permissions to use this plugin.");
         return;
     }
-    // permissions check
+
     AddAudiences();
     SetUpTabs();
     DB::Init();
     InitialLoad();
     startnew(MainCoro);
+    await({
+        startnew(RunTest),
+        startnew(RunTest),
+        startnew(RunTest),
+        startnew(RunTest)
+    });
+}
+
+void RunTest() {
+    sleep(Math::Rand(500, 1000));
+    auto recs = GetNbPlayersForMap("fPFRM776LkYYreosr9SXbHT4cxa");
+    print(Json::Write(recs));
 }
 
 bool HasPermissions() {
