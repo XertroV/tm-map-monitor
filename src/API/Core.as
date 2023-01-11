@@ -37,6 +37,47 @@ string[]@ GetDisplayNames(string[]@ wsids) {
     return names;
 }
 
+// Do not keep handles to this object around
+CMapRecord@ GetMyPbOnMap(const string &in mapUid) {
+    auto app = cast<CGameManiaPlanet>(GetApp());
+    auto userId = app.MenuManager.MenuCustom_CurrentManiaApp.UserMgr.Users[0].Id;
+    auto wsid = app.MenuManager.MenuCustom_CurrentManiaApp.LocalUser.WebServicesUserId;
+    auto wsids = MwFastBuffer<wstring>();
+    wsids.Add(wsid);
+    auto resp = app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.Map_GetPlayerListRecordList(userId, wsids, mapUid, "PersonalBest", "", "TimeAttack", "");
+    WaitAndClearTaskLater(resp, app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr);
+    if (resp.HasFailed || !resp.HasSucceeded) {
+        throw('GetMyPbOnMap failed: ' + resp.ErrorCode + ", " + resp.ErrorType + ", " + resp.ErrorDescription);
+    }
+    if (resp.MapRecordList.Length == 0) return null;
+    return resp.MapRecordList[0];
+}
+
+
+// Do not keep handles to these objects around
+CGameNaturalLeaderBoardInfoScript@[]@ GetMapTopRecords(const string &in mapUid, uint count = 10) {
+    auto app = cast<CGameManiaPlanet>(GetApp());
+    auto userId = app.MenuManager.MenuCustom_CurrentManiaApp.UserMgr.Users[0].Id;
+    auto wsid = app.MenuManager.MenuCustom_CurrentManiaApp.LocalUser.WebServicesUserId;
+    auto wsids = MwFastBuffer<wstring>();
+    wsids.Add(wsid);
+    auto resp = app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.MapLeaderBoard_GetPlayerList(userId, mapUid, "PersonalBest", "Global", 0, count);
+    WaitAndClearTaskLater(resp, app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr);
+    if (resp.HasFailed || !resp.HasSucceeded) {
+        throw('GetMapTopRecords failed: ' + resp.ErrorCode + ", " + resp.ErrorType + ", " + resp.ErrorDescription);
+    }
+    if (resp.LeaderBoardInfo.Length == 0) return {};
+    CGameNaturalLeaderBoardInfoScript@[] ret;
+    for (uint i = 0; i < resp.LeaderBoardInfo.Length; i++) {
+        ret.InsertLast(resp.LeaderBoardInfo[i]);
+    }
+    return ret;
+}
+
+
+
+
+
 // uint Get_MapLeaderBoard_PlayerCount(const string &in uid) {
 //     auto app = cast<CGameManiaPlanet>(GetApp());
 //     return app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.MapLeaderBoard_GetPlayerCount(uid, "", "Global");

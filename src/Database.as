@@ -30,7 +30,9 @@ namespace DB {
         return ret;
     }
 
-    SQLite::Statement@ GetMapWithRecordFilters(const string &in uid) {
-        return null;
+    SQLite::Statement@ GetMap(const string &in uid) {
+        auto s = db.Prepare("SELECT * FROM maps WHERE uid = ? LIMIT 1");
+        s.Bind(1, uid);
+        return s;
     }
 }

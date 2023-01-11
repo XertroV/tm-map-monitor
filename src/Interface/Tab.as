@@ -1,5 +1,6 @@
 class Tab {
     // bool canCloseTab = false;
+    string icon;
 
     bool tabOpen = true;
     bool canPopOut = false;

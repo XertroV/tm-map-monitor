@@ -11,17 +11,17 @@ void Main() {
     DB::Init();
     InitialLoad();
     startnew(MainCoro);
-    await({
-        startnew(RunTest),
-        startnew(RunTest),
-        startnew(RunTest),
-        startnew(RunTest)
-    });
+    RunTest();
 }
 
 void RunTest() {
+    auto rec = GetMyPbOnMap("GDPdoWoK7p3QHy1skI9r8rYfpvi");
+    if (rec !is null) {
+        print("my record: " + rec.Time);
+    }
+    print('done');
     sleep(Math::Rand(500, 1000));
-    auto recs = GetNbPlayersForMap("fPFRM776LkYYreosr9SXbHT4cxa");
+    auto recs = GetNbPlayersForMap("GDPdoWoK7p3QHy1skI9r8rYfpvi");
     print(Json::Write(recs));
 }
 

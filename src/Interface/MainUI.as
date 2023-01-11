@@ -45,132 +45,138 @@ void RenderMapMonitorWindow() {
 array<Tab@> mmTabs;
 
 void SetUpTabs() {
+    mmTabs.InsertLast(AboutTab());
     mmTabs.InsertLast(MapsTab());
+    mmTabs.InsertLast(WatchersTab());
+    mmTabs.InsertLast(RulesTab());
+    mmTabs.InsertLast(NotificationsTab());
+    mmTabs.InsertLast(TopTimesTab());
+    mmTabs.InsertLast(TimesTab());
+    mmTabs.InsertLast(RanksTab());
+    mmTabs.InsertLast(NbPlayersTab());
 }
 
 
 
-class MapsTab : Tab {
-    MapsTab() {
-        super("Maps", false);
+
+class AboutTab : Tab {
+    AboutTab() {
+        super(Icons::InfoCircle + " About", false);
     }
 
     void DrawInner() override {
-        DrawControlBar();
-        UI::Separator();
-        DrawMapsTable();
-    }
+        UI::Markdown("""
+ # About Map Monitor
 
-    vec2 get_ButtonIconSize() {
-        float s = UI::GetFrameHeight();
-        return vec2(s, s);
-    }
+ Map Monitor (MM) will monitor maps for: top times, a player's time/rank, and the number of players.
+ Data gathered is saved to a database and available for analysis.
 
-    float ctrlRhsWidth;
-    vec4 ctrlBtnRect;
+ ## Using MM
 
-    void DrawControlBar() {
-        float width = UI::GetContentRegionMax().x;
+ To use MM, you must add at least 2 things: a map, and a watcher.
+ Watchers are how you tell MM what data to monitor a map for.
+ Each watcher applies to exactly one map.
+ Once a watcher is added, MM will start gathering relevant data for that map.
 
-        ControlButton(Icons::Plus + "##main-add", CoroutineFunc(this.OnClickAddMap));
-        ctrlBtnRect = UI::GetItemRect();
+ To recieve notifications, you need to set up a notify rules (or just 'rules').
+ A rule tells MM what events you should be notified about.
+ For example:
+ - Your rank decreases (someone beats your time)
+ - If a player's PB improves
+ - If a player beats your time (a specific player, or any)
+ - If someone plays your map (or when thresholds are reached, like 100 players, 1000 players, etc)
+ - Summary data: like how many people played your maps in the last week
 
-        ControlButton(Icons::FloppyO + "##main-export", CoroutineFunc(this.OnClickExport));
+ Notifications are put in your inbox, and you can browse past notifications, too.
 
-        // rhs buttons
-        UI::SetCursorPos(vec2(width - ctrlRhsWidth, UI::GetCursorPos().y));
-        auto curr = UI::GetCursorPos();
-        NotificationsCtrlButton(vec2(ctrlBtnRect.z, ctrlBtnRect.w));
-        ControlButton(Icons::FloppyO + "##main-export", CoroutineFunc(this.OnClickExport));
-        ctrlRhsWidth = (UI::GetCursorPos() - curr - UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing)).x;
-        // ctrlRhsWidth = UI::GetItemRect().z;
+ ## Feedback, Suggestions, Bugs, etc
 
-        // control buttons always end with SameLine so put a dummy here to go to next line.
-        UI::Dummy(vec2());
-    }
+ - [Map Monitor thread on the Openplanet Discord](https://discord.com/channels/276076890714800129/1062289118647824414)
+ - [Github Repo Issues](https://github.com/XertroV/tm-map-monitor/issues)
+ - @XertroV on the Openplanet Discord
 
-    void DrawMapsTable() {
-        uint nCols = 10;
-        if (UI::BeginTable("maps table", nCols, UI::TableFlags::SizingStretchProp)) {
-            UI::TableSetupColumn("##play map btns", UI::TableColumnFlags::WidthFixed);
-            UI::TableSetupColumn("Name");
-            UI::TableSetupColumn("Author");
-            UI::TableSetupColumn("# Watchers"); // my record, all records
-            UI::TableSetupColumn("PB");
-            UI::TableSetupColumn("WR");
-            UI::TableSetupColumn("Your Rank");
-            UI::TableSetupColumn("Update Period");
-            UI::TableSetupColumn("Last Updated");
-            UI::TableSetupColumn("##maps col btns", UI::TableColumnFlags::WidthFixed);
-            UI::TableHeadersRow();
-
-            // for blah
-            DrawMapsTableRow();
-
-            UI::EndTable();
-        }
-    }
-
-    void DrawMapsTableRow() {
-            UI::TableNextRow();
-            UI::TableNextColumn();
-            if (UI::Button(Icons::FighterJet)) {
-
-            }
-
-            UI::TableNextColumn();
-            UI::AlignTextToFramePadding();
-            UI::Text("\\$7f8Definitely a map!");
-
-            UI::TableNextColumn();
-            UI::Text("XertroV");
-            UI::TableNextColumn();
-            // UI::Text("All Records");
-            UI::Text("4");
-
-            UI::TableNextColumn();
-            UI::Text(Time::Format(123456));
-
-            UI::TableNextColumn();
-            UI::Text("-" + Time::Format(2345, true));
-
-            UI::TableNextColumn();
-            UI::Text("6th");
-
-            UI::TableNextColumn();
-            UI::Text("8 hrs");
-
-            UI::TableNextColumn();
-            UI::Text(GetHumanTimeSince(1673242726));
-
-            UI::TableNextColumn();
-            if (UI::Button(Icons::Refresh)) {}
-            UI::SameLine();
-            if (UI::Button(Icons::Pencil)) {}
-            UI::SameLine();
-            if (UI::Button(Icons::TrashO)) {
-                // todo
-            }
-    }
-
-   void OnClickAddMap() {
-        ShowAddMapsWindow = true;
-    }
-
-    void OnClickExport() {
-        auto folder = IO::FromStorageFolder("exports/" + Time::FormatString("%Y-%m-%d %H-%M-%S"));
-        IO::CreateFolder(folder, true);
-
-        OpenExplorerPath(folder);
+        """);
     }
 }
-
-
 
 
 class WatchersTab : Tab {
     WatchersTab() {
-        super("Watchers", false);
+        super(Icons::Eye + " Watchers", false);
+    }
+
+    void DrawInner() override {
+        // DrawControlBar();
+        UI::Separator();
+        // DrawMapsTable();
+    }
+}
+
+class RulesTab : Tab {
+    RulesTab() {
+        super(Icons::Table + " Rules", false);
+    }
+
+    void DrawInner() override {
+        // DrawControlBar();
+        UI::Separator();
+        // DrawMapsTable();
+    }
+}
+
+
+class NotificationsTab : Tab {
+    NotificationsTab() {
+        super(Icons::Inbox + " Inbox", false);
+    }
+
+    void DrawInner() override {
+        // DrawControlBar();
+        UI::Separator();
+        // DrawMapsTable();
+    }
+}
+
+class TopTimesTab : Tab {
+    TopTimesTab() {
+        super(Icons::Trophy + " Top Times", false);
+        icon = Icons::Trophy;
+    }
+
+    void DrawInner() override {
+        // DrawControlBar();
+        UI::Separator();
+        // DrawMapsTable();
+    }
+}
+
+class TimesTab : Tab {
+    TimesTab() {
+        super(Icons::ClockO + " Pb Times", false);
+    }
+
+    void DrawInner() override {
+        // DrawControlBar();
+        UI::Separator();
+        // DrawMapsTable();
+    }
+}
+
+class RanksTab : Tab {
+    RanksTab() {
+        super(Icons::ListOl + " Ranks", false);
+    }
+
+    void DrawInner() override {
+        // DrawControlBar();
+        UI::Separator();
+        // DrawMapsTable();
+    }
+}
+
+class NbPlayersTab : Tab {
+    NbPlayersTab() {
+        super(Icons::Users + " Nb Players", false);
     }
 
     void DrawInner() override {

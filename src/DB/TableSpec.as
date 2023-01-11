@@ -11,8 +11,12 @@ namespace DB {
     void LoadTableSpecs() {
         if (tableSpecs.Length > 1) return;
         tableSpecs.InsertLast(MapsTable());
+        tableSpecs.InsertLast(PlayersTable());
+        tableSpecs.InsertLast(WatchRulesTable());
+        tableSpecs.InsertLast(MapNbPlayers());
+        tableSpecs.InsertLast(MapPlayerRanks());
+        tableSpecs.InsertLast(MapPlayerTimes());
         tableSpecs.InsertLast(NotificationsTable());
-        tableSpecs.InsertLast(MapRecordFiltersTable());
     }
 
 
@@ -51,17 +55,146 @@ namespace DB {
                     uid VARCHAR(32) PRIMARY KEY,
                     name TEXT NOT NULL,
                     author TEXT NOT NULL,
+                    is_mine INTEGER NOT NULL,
                     created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updated_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
+                CREATE INDEX ix_maps_uid ON maps(uid);
             """);
-            migrations.InsertLast("CREATE INDEX ix_uid ON maps(uid);");
-            migrations.InsertLast("ALTER TABLE maps ADD COLUMN is_mine BOOLEAN NOT NULL;");
-            migrations.InsertLast("ALTER TABLE maps ADD COLUMN wait_seconds INTEGER NOT NULL DEFAULT 28800;\n"
-                                  "ALTER TABLE maps ADD COLUMN last_checked INTEGER NOT NULL DEFAULT 0;\n"
-                                  "CREATE INDEX ix_last_check ON maps(last_checked);\n");
         }
     }
+
+    class PlayersTable : TableSpec {
+        PlayersTable() {
+            name = "players";
+            InsertMigrations();
+            expectedVersion = migrations.Length;
+        }
+
+        void InsertMigrations() {
+            migrations.InsertLast("""
+                CREATE TABLE players (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    wsid VARCHAR(64),
+                    name TEXT NOT NULL,
+                    created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX ix_players_wsid ON players(wsid);
+            """);
+        }
+    }
+
+    class WatchRulesTable : TableSpec {
+        WatchRulesTable() {
+            name = "watchers";
+            InsertMigrations();
+            expectedVersion = migrations.Length;
+        }
+
+        void InsertMigrations() {
+            string createTable = """
+                CREATE TABLE __TABLE_NAME__ (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    map_uid VARCHAR(32) NOT NULL,
+
+                    subject_type INTEGER NOT NULL CHECK(mode >= 0 AND mode <= 3), -- 0: nb_players, 1: top times, 2: my rank/time, 3: other players rank/time
+
+                    player_id VARCHAR(64),
+
+                    update_period INTEGER NOT NULL DEFAULT 28800,
+                    update_after INTEGER NOT NULL DEFAULT 0, -- set this after updating so we can easily search for new things to update
+                    -- notification_mode INTEGER NOT NULL DEFAULT 1, -- 0: All, 1: NoPing, 2: None
+
+                    disabled INTEGER NOT NULL DEFAULT 0,
+
+                    created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY("map_uid") REFERENCES maps(uid),
+                    FOREIGN KEY("player_id") REFERENCES players(wsid)
+                );
+                CREATE INDEX ix_watchrule_map_uid ON __TABLE_NAME__(map_uid);
+                CREATE INDEX ix_watchrule_mode ON __TABLE_NAME__(mode);
+                CREATE INDEX ix_watchrule_update_after ON __TABLE_NAME__(update_after);
+                CREATE INDEX ix_watchrule_disabled ON __TABLE_NAME__(disabled);
+            """;
+            migrations.InsertLast(createTable.Replace("__TABLE_NAME__", name));
+        }
+    }
+
+    // data point for number of players for a specific map
+    class MapNbPlayers : TableSpec {
+        MapNbPlayers() {
+            name = "map_nb_players";
+            InsertMigrations();
+            expectedVersion = migrations.Length;
+        }
+
+        void InsertMigrations() {
+            migrations.InsertLast("""
+                CREATE TABLE map_nb_players (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    map_uid VARCHAR(32) NOT NULL,
+                    nb_players INTEGER NOT NULL,
+                    created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY("map_uid") REFERENCES maps(uid)
+                );
+                CREATE INDEX ix_nb_players_map_uid ON map_nb_players(map_uid);
+            """);
+        }
+    }
+
+    class MapPlayerTimes : TableSpec {
+        MapPlayerTimes() {
+            name = "map_player_times";
+            InsertMigrations();
+            expectedVersion = migrations.Length;
+        }
+
+        void InsertMigrations() {
+            migrations.InsertLast("""
+                CREATE TABLE map_player_times (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    map_uid VARCHAR(32) NOT NULL,
+                    time INTEGER NOT NULL,
+                    player_id VARCHAR(64) NOT NULL,
+                    created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY("map_uid") REFERENCES maps(uid),
+                    FOREIGN KEY("player_id") REFERENCES players(wsid)
+                );
+                CREATE INDEX ix_times_map_uid ON map_player_times(map_uid);
+                CREATE INDEX ix_times_player_id ON map_player_times(player_id);
+            """);
+        }
+    }
+
+    class MapPlayerRanks : TableSpec {
+        MapPlayerRanks() {
+            name = "map_player_ranks";
+            InsertMigrations();
+            expectedVersion = migrations.Length;
+        }
+
+        void InsertMigrations() {
+            migrations.InsertLast("""
+                CREATE TABLE map_player_ranks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    map_uid VARCHAR(32) NOT NULL,
+                    rank INTEGER NOT NULL,
+                    player_id VARCHAR(64) NOT NULL,
+                    created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY("map_uid") REFERENCES maps(uid),
+                    FOREIGN KEY("player_id") REFERENCES players(wsid)
+                );
+                CREATE INDEX ix_times_map_uid ON map_player_ranks(map_uid);
+                CREATE INDEX ix_times_player_id ON map_player_ranks(player_id);
+            """);
+        }
+    }
+
+
+
+
 
     class NotificationsTable : TableSpec {
         NotificationsTable() {
@@ -74,39 +207,17 @@ namespace DB {
             migrations.InsertLast("""
                 CREATE TABLE notifications (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    uid VARCHAR(32) NOT NULL,
+                    map_uid VARCHAR(32) NOT NULL,
+                    wr_id INTEGER NOT NULL, -- watch rule
+                    me_id INTEGER NOT NULL, -- map event
                     msg TEXT NOT NULL,
                     created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updated_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY("uid") REFERENCES maps(uid)
+                    FOREIGN KEY("map_uid") REFERENCES maps(uid),
+                    FOREIGN KEY("wr_id") REFERENCES watch_rules(id),
+                    FOREIGN KEY("me_id") REFERENCES map_events(id)
                 );
             """);
-        }
-    }
-
-    class MapRecordFiltersTable : TableSpec {
-        MapRecordFiltersTable() {
-            name = "record_filters";
-            InsertMigrations();
-            expectedVersion = migrations.Length;
-        }
-
-        void InsertMigrations() {
-            string createTable = """
-                CREATE TABLE __TABLE_NAME__ (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    uid VARCHAR(32) NOT NULL,
-                    mode INTEGER NOT NULL CHECK(mode >= 0 AND mode <= 2), -- 0: all, 1: local player, 2: other player
-                    player_name TEXT,
-
-
-                    created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    updated_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY("uid") REFERENCES maps(uid)
-                );
-                CREATE INDEX ix_mode ON __TABLE_NAME__(mode);
-            """;
-            migrations.InsertLast(createTable.Replace("__TABLE_NAME__", name));
         }
     }
 }

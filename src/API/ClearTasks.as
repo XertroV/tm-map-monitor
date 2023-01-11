@@ -4,6 +4,7 @@ class ClearTask {
 
     CGameUserManagerScript@ userMgr { get { return cast<CGameUserManagerScript>(nod); } }
     CGameDataFileManagerScript@ dataFileMgr { get { return cast<CGameDataFileManagerScript>(nod); } }
+    CGameScoreAndLeaderBoardManagerScript@ scoreMgr { get { return cast<CGameScoreAndLeaderBoardManagerScript>(nod); } }
 
     ClearTask(CWebServicesTaskResult@ task, CMwNod@ owner) {
         @this.task = task;
@@ -13,6 +14,7 @@ class ClearTask {
     void Release() {
         if (userMgr !is null) userMgr.TaskResult_Release(task.Id);
         else if (dataFileMgr !is null) dataFileMgr.TaskResult_Release(task.Id);
+        else if (scoreMgr !is null) scoreMgr.TaskResult_Release(task.Id);
         else throw("ClearTask.Release called but I don't know how to handle this type: " + Reflection::TypeOf(nod).Name);
     }
 }
