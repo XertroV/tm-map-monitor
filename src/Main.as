@@ -15,14 +15,16 @@ void Main() {
 }
 
 void RunTest() {
-    auto rec = GetMyPbOnMap("SjKOXtKUQeIEVmLFwuFT79fGXv3");
-    if (rec !is null) {
-        print("my record: " + rec.Time);
-    }
-    print('done');
-    sleep(Math::Rand(500, 1000));
-    auto recs = GetNbPlayersForMap("SjKOXtKUQeIEVmLFwuFT79fGXv3");
-    print(Json::Write(recs));
+    sleep(1000);
+    DB::AddMapFromUID("SjKOXtKUQeIEVmLFwuFT79fGXv3");
+    DB::AddMapFromUID("PQQVgEAmoSNqdOZfjSvlG9971Nf");
+    DB::AddMapFromUID("GDPdoWoK7p3QHy1skI9r8rYfpvi");
+    DB::AddMapFromUID("ztzk73ADUyxmoe3RBKcZXKvcoR7");
+    DB::AddMapFromUID("fPFRM776LkYYreosr9SXbHT4cxa");
+    DB::AddMapFromUID("CAw3kvJNDIsVI3Hp0us4_bxP_ri");
+    DB::AddMapFromUID("o2Gvm4GF_Cqt45diPVMleZWeBS9");
+    DB::AddMapFromUID("OjRpnb4JbMeijuGrkuczVRrD0N8");
+    DB::AddMapFromUID("3c1uklnfvKP1IG04MtXSc2kBgV6");
 }
 
 bool HasPermissions() {
@@ -33,17 +35,16 @@ bool HasOptionalPermissions() {
     return Permissions::PlayLocalMap();
 }
 
-
-namespace State {
-    Map@[] maps;
-}
-
-
 void InitialLoad() {
     auto mapUids = DB::GetAllMapUIDs();
     for (uint i = 0; i < mapUids.Length; i++) {
-        State::maps.InsertLast(Map(mapUids[i]));
+        State::AddMap(Map(mapUids[i]));
         CheckPause('load map uids');
+    }
+    auto watcherIds = DB::GetAllWatcherIDs();
+    for (uint i = 0; i < watcherIds.Length; i++) {
+        State::AddWatcher(Watcher(watcherIds[i]));
+
     }
 }
 

@@ -1,8 +1,8 @@
 
 
-class MapsTab : Tab {
-    MapsTab() {
-        super(Icons::Map + " Maps", false);
+class WatchersTab : Tab {
+    WatchersTab() {
+        super(Icons::Eye + " Watchers", false);
     }
 
     void DrawInner() override {
@@ -22,16 +22,16 @@ class MapsTab : Tab {
     void DrawControlBar() {
         float width = UI::GetContentRegionMax().x;
 
-        ControlButton(Icons::Plus + "##main-add", CoroutineFunc(this.OnClickAddMap));
+        ControlButton(Icons::Plus + "##main-add", CoroutineFunc(this.OnClickAddWatcher));
         ctrlBtnRect = UI::GetItemRect();
 
-        ControlButton(Icons::FloppyO + "##main-export", CoroutineFunc(this.OnClickExport));
+        // ControlButton(Icons::FloppyO + "##main-export", CoroutineFunc(this.OnClickExport));
 
         // rhs buttons
         UI::SetCursorPos(vec2(width - ctrlRhsWidth, UI::GetCursorPos().y));
         auto curr = UI::GetCursorPos();
         NotificationsCtrlButton(vec2(ctrlBtnRect.z, ctrlBtnRect.w));
-        ControlButton(Icons::FloppyO + "##main-export2", CoroutineFunc(this.OnClickExport));
+        // ControlButton(Icons::FloppyO + "##main-export2", CoroutineFunc(this.OnClickExport));
         ctrlRhsWidth = (UI::GetCursorPos() - curr - UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing)).x;
 
         // control buttons always end with SameLine so put a dummy here to go to next line.
@@ -40,17 +40,16 @@ class MapsTab : Tab {
 
     void DrawMapsTable() {
         uint nCols = 8;
-        if (UI::BeginTable("maps table", nCols, UI::TableFlags::SizingStretchProp)) {
+        if (UI::BeginTable("watchers table", nCols, UI::TableFlags::SizingStretchProp)) {
             UI::TableSetupColumn("##play map btns", UI::TableColumnFlags::WidthFixed);
-            UI::TableSetupColumn("Name");
-            UI::TableSetupColumn("Author");
-            UI::TableSetupColumn(Icons::Eye);
-            UI::TableSetupColumn("Rank");
-            UI::TableSetupColumn("PB");
-            UI::TableSetupColumn("WR");
+            UI::TableSetupColumn("Map");
+            UI::TableSetupColumn("Subject");
+            // UI::TableSetupColumn("Rank");
+            // UI::TableSetupColumn("PB");
+            // UI::TableSetupColumn("WR");
             // UI::TableSetupColumn("Update Period");
             // UI::TableSetupColumn("Last Updated");
-            UI::TableSetupColumn("##maps col btns", UI::TableColumnFlags::WidthFixed);
+            UI::TableSetupColumn("##watchers col btns", UI::TableColumnFlags::WidthFixed);
             UI::TableHeadersRow();
 
             UI::ListClipper mapClipper(State::maps.Length);
@@ -107,14 +106,7 @@ class MapsTab : Tab {
             }
     }
 
-    void OnClickAddMap() {
-        ShowAddMapsWindow = true;
-    }
-
-    void OnClickExport() {
-        auto folder = IO::FromStorageFolder("exports/" + Time::FormatString("%Y-%m-%d %H-%M-%S"));
-        IO::CreateFolder(folder, true);
-
-        OpenExplorerPath(folder);
+    void OnClickAddWatcher() {
+        // ShowAddMapsWindow = true;
     }
 }

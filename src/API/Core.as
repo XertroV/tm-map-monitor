@@ -37,6 +37,23 @@ string[]@ GetDisplayNames(string[]@ wsids) {
     return names;
 }
 
+
+const string LocalAccountId {
+    get {
+        return cast<CGameManiaPlanet>(GetApp()).MenuManager.MenuCustom_CurrentManiaApp.LocalUser.WebServicesUserId;
+    }
+}
+
+
+const string CurrentMapUid {
+    get {
+        auto m = GetApp().RootMap;
+        if (m is null) return "";
+        return m.EdChallengeId;
+    }
+}
+
+
 // Do not keep handles to this object around
 CMapRecord@ GetMyPbOnMap(const string &in mapUid) {
     auto app = cast<CGameManiaPlanet>(GetApp());
@@ -58,9 +75,6 @@ CMapRecord@ GetMyPbOnMap(const string &in mapUid) {
 CGameNaturalLeaderBoardInfoScript@[]@ GetMapTopRecords(const string &in mapUid, uint count = 10) {
     auto app = cast<CGameManiaPlanet>(GetApp());
     auto userId = app.MenuManager.MenuCustom_CurrentManiaApp.UserMgr.Users[0].Id;
-    auto wsid = app.MenuManager.MenuCustom_CurrentManiaApp.LocalUser.WebServicesUserId;
-    auto wsids = MwFastBuffer<wstring>();
-    wsids.Add(wsid);
     auto resp = app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.MapLeaderBoard_GetPlayerList(userId, mapUid, "PersonalBest", "Global", 0, count);
     WaitAndClearTaskLater(resp, app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr);
     if (resp.HasFailed || !resp.HasSucceeded) {
@@ -72,6 +86,18 @@ CGameNaturalLeaderBoardInfoScript@[]@ GetMapTopRecords(const string &in mapUid, 
         ret.InsertLast(resp.LeaderBoardInfo[i]);
     }
     return ret;
+}
+
+// Do not keep handles to these objects around
+CNadeoServicesMap@ GetMapFromUid(const string &in mapUid) {
+    auto app = cast<CGameManiaPlanet>(GetApp());
+    auto userId = app.MenuManager.MenuCustom_CurrentManiaApp.UserMgr.Users[0].Id;
+    auto resp = app.MenuManager.MenuCustom_CurrentManiaApp.DataFileMgr.Map_NadeoServices_GetFromUid(userId, mapUid);
+    WaitAndClearTaskLater(resp, app.MenuManager.MenuCustom_CurrentManiaApp.DataFileMgr);
+    if (resp.HasFailed || !resp.HasSucceeded) {
+        throw('GetMapFromUid failed: ' + resp.ErrorCode + ", " + resp.ErrorType + ", " + resp.ErrorDescription);
+    }
+    return resp.Map;
 }
 
 

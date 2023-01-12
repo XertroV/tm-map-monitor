@@ -2,21 +2,17 @@
 */
 void RenderMenuMain() {
     if (UI::BeginMenu(MenuMain::Label)) {
-        UI::BeginDisabled(GetApp().RootMap is null);
-        if (UI::MenuItem('Add Map')) OnClickAddMap();
+        UI::BeginDisabled(GetApp().RootMap is null || State::IsMapKnown(CurrentMapUid));
+        if (UI::MenuItem('Add This Map')) MenuMain::OnClickAddThisMap();
         UI::EndDisabled();
 
         UI::Separator();
 
-        if (UI::MenuItem('Open Inbox')) OnClickOpenInbox();
+        if (UI::MenuItem('Open Inbox')) MenuMain::OnClickOpenInbox();
 
         UI::EndMenu();
     }
 }
-
-void OnClickAddMap() {}
-
-void OnClickOpenInbox() {}
 
 namespace MenuMain {
     uint _lastNbNotifs = 0;
@@ -34,5 +30,18 @@ namespace MenuMain {
             }
             return _lastMenuLabel;
         }
+    }
+
+    void OnClickAddThisMap() {
+        startnew(AddCurrentMap);
+    }
+
+    void AddCurrentMap() {
+        DB::AddMapFromUID(CurrentMapUid);
+    }
+
+    void OnClickOpenInbox() {
+        WindowOpen = true;
+        // todo: select tab
     }
 }

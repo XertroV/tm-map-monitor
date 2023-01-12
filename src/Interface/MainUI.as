@@ -100,18 +100,6 @@ class AboutTab : Tab {
 }
 
 
-class WatchersTab : Tab {
-    WatchersTab() {
-        super(Icons::Eye + " Watchers", false);
-    }
-
-    void DrawInner() override {
-        // DrawControlBar();
-        UI::Separator();
-        // DrawMapsTable();
-    }
-}
-
 class RulesTab : Tab {
     RulesTab() {
         super(Icons::Table + " Rules", false);

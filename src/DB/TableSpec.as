@@ -121,6 +121,7 @@ namespace DB {
                 CREATE INDEX ix_watchrule_disabled ON __TABLE_NAME__(disabled);
             """;
             migrations.InsertLast(createTable.Replace("__TABLE_NAME__", name));
+            migrations.InsertLast("CREATE UNIQUE INDEX ix_wrule_map_subj_wsid ON watchers(map_uid, subject_type, player_id);");
         }
     }
 
@@ -196,7 +197,7 @@ namespace DB {
 
     class MapTimesTable : TableSpec {
         MapTimesTable() {
-            name = "map_top_times";
+            name = "map_times";
             InsertMigrations();
             expectedVersion = migrations.Length;
         }
