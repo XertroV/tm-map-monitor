@@ -46,10 +46,10 @@ array<Tab@> mmTabs;
 
 void SetUpTabs() {
     mmTabs.InsertLast(AboutTab());
+    mmTabs.InsertLast(InboxTab());
     mmTabs.InsertLast(MapsTab());
     mmTabs.InsertLast(WatchersTab());
     mmTabs.InsertLast(RulesTab());
-    mmTabs.InsertLast(NotificationsTab());
     mmTabs.InsertLast(TopTimesTab());
     mmTabs.InsertLast(TimesTab());
     mmTabs.InsertLast(RanksTab());
@@ -125,8 +125,8 @@ class RulesTab : Tab {
 }
 
 
-class NotificationsTab : Tab {
-    NotificationsTab() {
+class InboxTab : Tab {
+    InboxTab() {
         super(Icons::Inbox + " Inbox", false);
     }
 

@@ -15,13 +15,13 @@ void Main() {
 }
 
 void RunTest() {
-    auto rec = GetMyPbOnMap("GDPdoWoK7p3QHy1skI9r8rYfpvi");
+    auto rec = GetMyPbOnMap("SjKOXtKUQeIEVmLFwuFT79fGXv3");
     if (rec !is null) {
         print("my record: " + rec.Time);
     }
     print('done');
     sleep(Math::Rand(500, 1000));
-    auto recs = GetNbPlayersForMap("GDPdoWoK7p3QHy1skI9r8rYfpvi");
+    auto recs = GetNbPlayersForMap("SjKOXtKUQeIEVmLFwuFT79fGXv3");
     print(Json::Write(recs));
 }
 

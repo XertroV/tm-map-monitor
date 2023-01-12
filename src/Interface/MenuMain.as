@@ -2,11 +2,21 @@
 */
 void RenderMenuMain() {
     if (UI::BeginMenu(MenuMain::Label)) {
+        UI::BeginDisabled(GetApp().RootMap is null);
+        if (UI::MenuItem('Add Map')) OnClickAddMap();
+        UI::EndDisabled();
 
+        UI::Separator();
+
+        if (UI::MenuItem('Open Inbox')) OnClickOpenInbox();
 
         UI::EndMenu();
     }
 }
+
+void OnClickAddMap() {}
+
+void OnClickOpenInbox() {}
 
 namespace MenuMain {
     uint _lastNbNotifs = 0;

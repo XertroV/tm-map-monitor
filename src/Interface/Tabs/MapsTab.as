@@ -101,15 +101,4 @@ class MapsTab : Tab {
                 // todo
             }
     }
-
-   void OnClickAddMap() {
-        ShowAddMapsWindow = true;
-    }
-
-    void OnClickExport() {
-        auto folder = IO::FromStorageFolder("exports/" + Time::FormatString("%Y-%m-%d %H-%M-%S"));
-        IO::CreateFolder(folder, true);
-
-        OpenExplorerPath(folder);
-    }
 }
