@@ -22,16 +22,16 @@ class WatchersTab : Tab {
     void DrawControlBar() {
         float width = UI::GetContentRegionMax().x;
 
-        ControlButton(Icons::Plus + "##main-add", CoroutineFunc(this.OnClickAddWatcher));
+        ControlButton(Icons::Plus + "##watchers-add", CoroutineFunc(this.OnClickAddWatcher));
         ctrlBtnRect = UI::GetItemRect();
 
-        // ControlButton(Icons::FloppyO + "##main-export", CoroutineFunc(this.OnClickExport));
+        // ControlButton(Icons::FloppyO + "##watchers-export", CoroutineFunc(this.OnClickExport));
 
         // rhs buttons
         UI::SetCursorPos(vec2(width - ctrlRhsWidth, UI::GetCursorPos().y));
         auto curr = UI::GetCursorPos();
         NotificationsCtrlButton(vec2(ctrlBtnRect.z, ctrlBtnRect.w));
-        // ControlButton(Icons::FloppyO + "##main-export2", CoroutineFunc(this.OnClickExport));
+        // ControlButton(Icons::FloppyO + "##watchers-export2", CoroutineFunc(this.OnClickExport));
         ctrlRhsWidth = (UI::GetCursorPos() - curr - UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing)).x;
 
         // control buttons always end with SameLine so put a dummy here to go to next line.
@@ -52,10 +52,10 @@ class WatchersTab : Tab {
             UI::TableSetupColumn("##watchers col btns", UI::TableColumnFlags::WidthFixed);
             UI::TableHeadersRow();
 
-            UI::ListClipper mapClipper(State::maps.Length);
-            while (mapClipper.Step()) {
-                for (uint i = mapClipper.DisplayStart; i < mapClipper.DisplayEnd; i++) {
-                    DrawMapsTableRow(State::maps[i]);
+            UI::ListClipper watchersClipper(State::maps.Length);
+            while (watchersClipper.Step()) {
+                for (uint i = watchersClipper.DisplayStart; i < watchersClipper.DisplayEnd; i++) {
+                    DrawWatchersTableRow(State::maps[i]);
                 }
             }
 
@@ -63,7 +63,7 @@ class WatchersTab : Tab {
         }
     }
 
-    void DrawMapsTableRow(Map@ map) {
+    void DrawWatchersTableRow(Map@ map) {
             UI::TableNextRow();
             UI::TableNextColumn();
             if (UI::Button(Icons::FighterJet)) {
