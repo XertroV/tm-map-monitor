@@ -1,5 +1,4 @@
-const string GetHumanTimeSince(uint stamp) {
-    auto nSecs = Time::Stamp - stamp;
+const string GetHumanTimePeriod(int nSecs) {
     auto absNSecs = Math::Abs(nSecs);
     string units;
     float divBy;
@@ -8,4 +7,9 @@ const string GetHumanTimeSince(uint stamp) {
     else if (absNSecs < 86400*2) {units = " hrs"; divBy = 3600;}
     else {units = " days"; divBy = 86400;}
     return Text::Format(absNSecs >= 86400*2 ? "%.1f" : "%.0f", float(nSecs) / divBy) + units;
+}
+
+const string GetHumanTimeSince(uint stamp) {
+    auto nSecs = Time::Stamp - stamp;
+    return GetHumanTimePeriod(nSecs);
 }

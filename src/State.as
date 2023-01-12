@@ -1,6 +1,7 @@
 namespace State {
     Map@[] maps;
     dictionary knownMaps;
+    Watcher@[] watchers;
     dictionary knownWatchers;
 
     dictionary mapToPb; // uid ->
@@ -28,6 +29,7 @@ namespace State {
         dev_trace('Adding watcher: ' + watcher.id_str);
         knownWatchers[watcher.id_str] = @watcher;
         GetWatchers(watcher.map_uid).InsertLast(watcher);
+        watchers.InsertLast(watcher);
     }
 
     int NbWatchersFor(Map@ map) {

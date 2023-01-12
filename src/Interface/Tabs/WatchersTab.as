@@ -41,21 +41,24 @@ class WatchersTab : Tab {
     void DrawMapsTable() {
         uint nCols = 8;
         if (UI::BeginTable("watchers table", nCols, UI::TableFlags::SizingStretchProp)) {
-            UI::TableSetupColumn("##play map btns", UI::TableColumnFlags::WidthFixed);
+            // UI::TableSetupColumn("##play map btns", UI::TableColumnFlags::WidthFixed);
+            UI::TableSetupColumn("ID");
             UI::TableSetupColumn("Map");
             UI::TableSetupColumn("Subject");
+            UI::TableSetupColumn("Player");
             // UI::TableSetupColumn("Rank");
             // UI::TableSetupColumn("PB");
             // UI::TableSetupColumn("WR");
-            // UI::TableSetupColumn("Update Period");
-            // UI::TableSetupColumn("Last Updated");
+            UI::TableSetupColumn("Update Period");
+            UI::TableSetupColumn("Last Updated");
+            UI::TableSetupColumn("Next Update");
             UI::TableSetupColumn("##watchers col btns", UI::TableColumnFlags::WidthFixed);
             UI::TableHeadersRow();
 
-            UI::ListClipper watchersClipper(State::maps.Length);
+            UI::ListClipper watchersClipper(State::watchers.Length);
             while (watchersClipper.Step()) {
                 for (uint i = watchersClipper.DisplayStart; i < watchersClipper.DisplayEnd; i++) {
-                    DrawWatchersTableRow(State::maps[i]);
+                    DrawWatchersTableRow(State::watchers[i]);
                 }
             }
 
@@ -63,47 +66,43 @@ class WatchersTab : Tab {
         }
     }
 
-    void DrawWatchersTableRow(Map@ map) {
-            UI::TableNextRow();
-            UI::TableNextColumn();
-            if (UI::Button(Icons::FighterJet)) {
-                // todo: play map
-            }
+    void DrawWatchersTableRow(Watcher@ watcher) {
+        auto map = State::GetMap(watcher.map_uid);
+        UI::TableNextRow();
+        UI::TableNextColumn();
+        UI::Text(tostring(watcher.id));
 
-            UI::TableNextColumn();
-            UI::AlignTextToFramePadding();
-            UI::Text(map.name);
+        UI::TableNextColumn();
+        UI::Text(map.name);
+        // if (UI::Button(Icons::FighterJet)) {
+        //     // todo: play map
+        // }
 
-            UI::TableNextColumn();
-            UI::Text(map.author);
-            UI::TableNextColumn();
-            UI::Text(tostring(State::NbWatchersFor(map.uid)));
-            UI::SameLine();
-            if (UI::Button(Icons::Plus + Icons::Eye)) {}
+        UI::TableNextColumn();
+        UI::AlignTextToFramePadding();
+        UI::Text(tostring(watcher.subject_type));
 
-            auto myPb = State::GetMyInfoOn(map.uid);
+        UI::TableNextColumn();
+        UI::Text("??");
 
-            UI::TableNextColumn();
-            UI::Text(myPb is null ? "?" : myPb.RankStr());
+        UI::TableNextColumn();
+        UI::Text(GetHumanTimePeriod(watcher.update_period));
 
-            UI::TableNextColumn();
-            UI::Text(myPb is null ? "?" : myPb.TimeStr());
+        UI::TableNextColumn();
+        UI::Text(GetHumanTimeSince(watcher.updated_ts));
 
-            UI::TableNextColumn();
-            UI::Text("-" + Time::Format(2345, true));
+        UI::TableNextColumn();
+        UI::Text(GetHumanTimePeriod(watcher.update_after - Time::Stamp));
 
-            // UI::TableNextColumn();
-            // UI::Text("8 hrs");
+        // UI::TableNextColumn();
+        // UI::Text("-" + Time::Format(2345, true));
 
-            // UI::TableNextColumn();
-            // UI::Text(GetHumanTimeSince(map.updated_ts));
-
-            UI::TableNextColumn();
-            if (UI::Button(Icons::Pencil)) {}
-            UI::SameLine();
-            if (UI::Button(Icons::TrashO)) {
-                // todo
-            }
+        UI::TableNextColumn();
+        if (UI::Button(Icons::Pencil)) {}
+        UI::SameLine();
+        if (UI::Button(Icons::TrashO)) {
+            // todo
+        }
     }
 
     void OnClickAddWatcher() {
