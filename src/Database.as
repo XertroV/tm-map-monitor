@@ -33,6 +33,15 @@ namespace DB {
         return ret;
     }
 
+    string[]@ GetAllPlayerIDs() {
+        string[] ret;
+        auto s = db.Prepare("SELECT wsid FROM players ORDER BY id ASC;");
+        while (s.NextRow()) {
+            ret.InsertLast(s.GetColumnString('wsid'));
+        }
+        return ret;
+    }
+
 
     string[]@ GetAllMapUIDs() {
         string[] ret;
@@ -62,8 +71,20 @@ namespace DB {
         auto mapInfo = GetMapFromUid(uid);
         // add to database
         auto map = Map(uid, ColoredString(mapInfo.Name), mapInfo.AuthorDisplayName, mapInfo.AuthorAccountId == LocalAccountId);
-        auto pbWatcher = Watcher(map.uid, WatchSubject::LocalPlayer, LocalAccountId, 28800);
+        auto pbWatcher = AddWatcherLocalPlayer(map.uid);
         trace('DB::AddMapFromUID: ' + uid + ' with pb watcher: ' + pbWatcher.id);
         return map;
+    }
+
+    Watcher@ AddWatcherLocalPlayer(const string &in map_uid, int update_period = 28800) {
+        AddPlayerFromWSID(LocalAccountId);
+        return Watcher(map_uid, WatchSubject::LocalPlayer, LocalAccountId, update_period);
+    }
+
+    Player@ AddPlayerFromWSID(const string &in wsid) {
+        if (State::IsPlayerKnown(wsid)) return State::GetPlayer(wsid);
+        auto names = GetDisplayNames({wsid});
+        auto tags = GetClubTags({wsid});
+        return Player(wsid, names[0], ColoredString(tags[0]));
     }
 }

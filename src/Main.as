@@ -10,12 +10,13 @@ void Main() {
     SetUpTabs();
     DB::Init();
     InitialLoad();
+    startnew(RunWatchers);
     startnew(MainCoro);
     RunTest();
 }
 
 void RunTest() {
-    sleep(1000);
+    sleep(5000);
     DB::AddMapFromUID("SjKOXtKUQeIEVmLFwuFT79fGXv3");
     DB::AddMapFromUID("PQQVgEAmoSNqdOZfjSvlG9971Nf");
     DB::AddMapFromUID("GDPdoWoK7p3QHy1skI9r8rYfpvi");
@@ -38,12 +39,17 @@ bool HasOptionalPermissions() {
 void InitialLoad() {
     auto mapUids = DB::GetAllMapUIDs();
     for (uint i = 0; i < mapUids.Length; i++) {
-        State::AddMap(Map(mapUids[i]));
-        CheckPause('load map uids');
+        Map(mapUids[i]);
+        // CheckPause('load map uids');
+    }
+    auto playerIds = DB::GetAllPlayerIDs();
+    for (uint i = 0; i < playerIds.Length; i++) {
+        Player(playerIds[i]);
+        // CheckPause('load players');
     }
     auto watcherIds = DB::GetAllWatcherIDs();
     for (uint i = 0; i < watcherIds.Length; i++) {
-        State::AddWatcher(Watcher(watcherIds[i]));
+        Watcher(watcherIds[i]);
 
     }
 }

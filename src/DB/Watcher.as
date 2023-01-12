@@ -18,6 +18,7 @@ class Watcher {
     bool disabled;
     int created_ts;
     int updated_ts;
+    int run_count = 0;
 
     Watcher(int id) {
         this.id = id;
@@ -59,17 +60,19 @@ class Watcher {
         disabled = s.GetColumnInt('disabled') > 0;
         created_ts = s.GetColumnInt('created_ts');
         updated_ts = s.GetColumnInt('updated_ts');
+        run_count = s.GetColumnInt('run_count');
     }
 
     void Save() {
         update_after = Math::Min(update_after, update_period + updated_ts);
         updated_ts = Time::Stamp;
-        auto s = DB::db.Prepare("UPDATE watchers SET update_period = ?, update_after = ?, disabled = ?, updated_ts = ? WHERE id = ?;");
+        auto s = DB::db.Prepare("UPDATE watchers SET update_period = ?, update_after = ?, disabled = ?, updated_ts = ?, run_count = ? WHERE id = ?;");
         s.Bind(1, update_period);
         s.Bind(2, update_after);
         s.Bind(3, disabled ? 1 : 0);
         s.Bind(4, updated_ts);
-        s.Bind(5, id);
+        s.Bind(5, run_count);
+        s.Bind(6, id);
         s.Execute();
     }
 }

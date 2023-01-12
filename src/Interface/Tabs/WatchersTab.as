@@ -68,6 +68,8 @@ class WatchersTab : Tab {
 
     void DrawWatchersTableRow(Watcher@ watcher) {
         auto map = State::GetMap(watcher.map_uid);
+        auto player = State::GetPlayer(watcher.player_id);
+
         UI::TableNextRow();
         UI::TableNextColumn();
         UI::Text(tostring(watcher.id));
@@ -83,7 +85,7 @@ class WatchersTab : Tab {
         UI::Text(tostring(watcher.subject_type));
 
         UI::TableNextColumn();
-        UI::Text("??");
+        UI::Text(player is null ? "??" : player.DisplayTagAndName);
 
         UI::TableNextColumn();
         UI::Text(GetHumanTimePeriod(watcher.update_period));
@@ -92,10 +94,7 @@ class WatchersTab : Tab {
         UI::Text(GetHumanTimeSince(watcher.updated_ts));
 
         UI::TableNextColumn();
-        UI::Text(GetHumanTimePeriod(watcher.update_after - Time::Stamp));
-
-        // UI::TableNextColumn();
-        // UI::Text("-" + Time::Format(2345, true));
+        UI::Text(GetHumanTimePeriod(Math::Max(0, watcher.update_after - Time::Stamp)));
 
         UI::TableNextColumn();
         if (UI::Button(Icons::Pencil)) {}

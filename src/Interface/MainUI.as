@@ -64,6 +64,15 @@ class AboutTab : Tab {
         super(Icons::InfoCircle + " About", false);
     }
 
+    void DrawTab() override {
+        if (!tabOpen || !S_ShowAboutTab) return;
+        if (UI::BeginTabItem(tabName, S_ShowAboutTab, TabFlags)) {
+            DrawTogglePop();
+            DrawInner();
+            UI::EndTabItem();
+        }
+    }
+
     void DrawInner() override {
         UI::Markdown("""
  # About Map Monitor

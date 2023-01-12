@@ -84,6 +84,7 @@ namespace DB {
                 );
                 CREATE INDEX ix_players_wsid ON players(wsid);
             """);
+            migrations.InsertLast("ALTER TABLE players ADD COLUMN club_tag TEXT;");
         }
     }
 
@@ -122,6 +123,7 @@ namespace DB {
             """;
             migrations.InsertLast(createTable.Replace("__TABLE_NAME__", name));
             migrations.InsertLast("CREATE UNIQUE INDEX ix_wrule_map_subj_wsid ON watchers(map_uid, subject_type, player_id);");
+            migrations.InsertLast("ALTER TABLE watchers ADD COLUMN run_count INTEGER DEFAULT 0;");
         }
     }
 
@@ -144,6 +146,7 @@ namespace DB {
                 );
                 CREATE INDEX ix_nb_players_map_uid ON map_nb_players(map_uid);
             """);
+            migrations.InsertLast("ALTER TABLE map_nb_players ADD COLUMN last_highest_score INTEGER DEFAULT 0;");
         }
     }
 

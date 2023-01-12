@@ -1,8 +1,12 @@
 namespace State {
     Map@[] maps;
     dictionary knownMaps;
+
     Watcher@[] watchers;
     dictionary knownWatchers;
+
+    Player@[] players;
+    dictionary knownPlayers;
 
     dictionary mapToPb; // uid ->
     dictionary mapToWr;
@@ -21,6 +25,21 @@ namespace State {
 
     Map@ GetMap(const string &in uid) {
         return cast<Map>(knownMaps[uid]);
+    }
+
+    void AddPlayer(Player@ p) {
+        if (IsPlayerKnown(p.wsid)) return;
+        dev_trace('Adding player: ' + p.name);
+        knownPlayers[p.wsid] = @p;
+        players.InsertLast(p);
+    }
+
+    bool IsPlayerKnown(const string &in wsid) {
+        return knownPlayers.Exists(wsid);
+    }
+
+    Player@ GetPlayer(const string &in wsid) {
+        return cast<Player>(knownPlayers[wsid]);
     }
 
 
