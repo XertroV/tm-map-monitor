@@ -82,7 +82,7 @@ class MapsTab : Tab {
             UI::SameLine();
             if (UI::Button(Icons::Plus + Icons::Eye)) {}
 
-            auto myPb = State::GetMyInfoOn(map.uid);
+            auto myPb = State::GetMyPb(map.uid);
 
             UI::TableNextColumn();
             UI::Text(myPb is null ? "?" : myPb.RankStr());

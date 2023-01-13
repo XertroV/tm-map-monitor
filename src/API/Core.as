@@ -56,9 +56,13 @@ const string CurrentMapUid {
 
 // Do not keep handles to this object around
 CMapRecord@ GetMyPbOnMap(const string &in mapUid) {
+    return GetPlayersRecordOnMap(mapUid, LocalAccountId);
+}
+
+// Do not keep handles to this object around
+CMapRecord@ GetPlayersRecordOnMap(const string &in mapUid, const string &in wsid) {
     auto app = cast<CGameManiaPlanet>(GetApp());
     auto userId = app.MenuManager.MenuCustom_CurrentManiaApp.UserMgr.Users[0].Id;
-    auto wsid = app.MenuManager.MenuCustom_CurrentManiaApp.LocalUser.WebServicesUserId;
     auto wsids = MwFastBuffer<wstring>();
     wsids.Add(wsid);
     auto resp = app.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.Map_GetPlayerListRecordList(userId, wsids, mapUid, "PersonalBest", "", "TimeAttack", "");
@@ -69,6 +73,7 @@ CMapRecord@ GetMyPbOnMap(const string &in mapUid) {
     if (resp.MapRecordList.Length == 0) return null;
     return resp.MapRecordList[0];
 }
+
 
 
 // Do not keep handles to these objects around

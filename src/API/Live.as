@@ -26,13 +26,14 @@ Json::Value@ GetYourUploadedMaps(uint length = 100, uint offset = 0) {
 }
 
 // https://webservices.openplanet.dev/live/leaderboards/surround
-Json::Value@ GetSurrondingRecords(const string &in mapUid, uint score) {
-    return GetSurrondingRecords("Personal_Best", mapUid, score);
+// example for response.tops: [{"top":[{"score":45438,"accountId":"0a2d1bc0-4aaa-4374-b2db-3d561bdab1c9","zoneId":"301e309b-7e13-11e8-8060-e284abfd2bc4","position":1560,"zoneName":"New South Wales"}],"zoneId":"301e1b69-7e13-11e8-8060-e284abfd2bc4","zoneName":"World"},{"top":[{"score":45438,"accountId":"0a2d1bc0-4aaa-4374-b2db-3d561bdab1c9","zoneId":"301e309b-7e13-11e8-8060-e284abfd2bc4","position":42,"zoneName":"New South Wales"}],"zoneId":"301e237a-7e13-11e8-8060-e284abfd2bc4","zoneName":"Oceania"},{"top":[{"score":45438,"accountId":"0a2d1bc0-4aaa-4374-b2db-3d561bdab1c9","zoneId":"301e309b-7e13-11e8-8060-e284abfd2bc4","position":32,"zoneName":"New South Wales"}],"zoneId":"301e2dc2-7e13-11e8-8060-e284abfd2bc4","zoneName":"Australia"},{"top":[{"score":45438,"accountId":"0a2d1bc0-4aaa-4374-b2db-3d561bdab1c9","zoneId":"301e309b-7e13-11e8-8060-e284abfd2bc4","position":8,"zoneName":"New South Wales"}],"zoneId":"301e309b-7e13-11e8-8060-e284abfd2bc4","zoneName":"New South Wales"}]
+Json::Value@ GetSurrondingRecords(const string &in mapUid, uint score, int below=1, int above=1) {
+    return GetSurrondingRecords("Personal_Best", mapUid, score, below, above);
 }
 
 // https://webservices.openplanet.dev/live/leaderboards/surround
-Json::Value@ GetSurrondingRecords(const string &in groupId, const string &in mapUid, uint score) {
-    return CallLiveApiPath("/api/token/leaderboard/group/" + groupId + "/map/" + mapUid + "/surround/1/1?onlyWorld=true&score=" + score);
+Json::Value@ GetSurrondingRecords(const string &in groupId, const string &in mapUid, uint score, int below=1, int above=1) {
+    return CallLiveApiPath("/api/token/leaderboard/group/" + groupId + "/map/" + mapUid + "/surround/"+below+"/"+above+"?score=" + score);
 }
 
 /**

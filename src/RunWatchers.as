@@ -12,7 +12,15 @@ void RunWatchers() {
         yield();
         for (uint i = 0; i < toUpdate.Length; i++) {
             auto watcher = toUpdate[i];
+#if DEV
             RunWatcher(watcher);
+#else
+            try {
+                RunWatcher(watcher);
+            } catch {
+                warn("Exception running watcher: " + getExceptionInfo());
+            }
+#endif
         }
         yield();
 
@@ -33,19 +41,42 @@ bool RunWatcher(Watcher@ watcher) {
 bool RunNbPlayersWatcher(Watcher@ watcher) {
     if (watcher.subject_type != WatchSubject::NbPlayers) throw('bad watcher.subject -- not NbPlayers');
     auto resp = GetNbPlayersForMap(watcher.map_uid);
-
-    return true;
+    if (resp !is null && resp.GetType() == Json::Type::Object) {
+        try {
+            int nb_players = resp['nb_players'];
+            int last_highest_score = resp['last_highest_score'];
+            MapNbPlayersRow(watcher.map_uid, nb_players, last_highest_score);
+            watcher.UpdateAndSave();
+            return true;
+        } catch {
+            warn('exception creating nb players row: ' + getExceptionInfo());
+        }
+    }
+    watcher.update_after = 0;
+    return false;
 }
+
 bool RunTopTimesWatcher(Watcher@ watcher) {
     if (watcher.subject_type != WatchSubject::TopTimes) throw('bad watcher.subject -- not TopTimes');
 
     return true;
 }
+
 bool RunLocalPlayerWatcher(Watcher@ watcher) {
     if (watcher.subject_type != WatchSubject::LocalPlayer) throw('bad watcher.subject -- not LocalPlayer');
-
-    return true;
+    auto resp = GetSurrondingRecords(watcher.map_uid, -1, 0, 0);
+    if (resp !is null && resp.GetType() == Json::Type::Object) {
+        auto global_rec = resp['tops'][0]['top'][0];
+        int rank = global_rec['position'];
+        int time = global_rec['score'];
+        auto mt = MapTimeRow(watcher.map_uid, -1, rank, time, global_rec['accountId'], global_rec['zoneId']);
+        State::AddPb(mt);
+        return watcher.UpdateAndSave();
+    }
+    watcher.update_after = 0;
+    return false;
 }
+
 bool RunAnotherPlayerWatcher(Watcher@ watcher) {
     if (watcher.subject_type != WatchSubject::AnotherPlayer) throw('bad watcher.subject -- not AnotherPlayer');
 

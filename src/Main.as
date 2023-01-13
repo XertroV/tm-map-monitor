@@ -26,6 +26,10 @@ void RunTest() {
     DB::AddMapFromUID("o2Gvm4GF_Cqt45diPVMleZWeBS9");
     DB::AddMapFromUID("OjRpnb4JbMeijuGrkuczVRrD0N8");
     DB::AddMapFromUID("3c1uklnfvKP1IG04MtXSc2kBgV6");
+    auto rec = GetSurrondingRecords("3c1uklnfvKP1IG04MtXSc2kBgV6", 987654, 0, 0);
+    print(Json::Write(rec['tops']));
+    auto world = rec['tops'][0]['top'][0];
+    print(Json::Write(world));
 }
 
 bool HasPermissions() {

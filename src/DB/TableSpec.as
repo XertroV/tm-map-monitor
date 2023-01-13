@@ -12,6 +12,7 @@ namespace DB {
         if (tableSpecs.Length > 1) return;
         tableSpecs.InsertLast(MapsTable());
         tableSpecs.InsertLast(PlayersTable());
+        tableSpecs.InsertLast(ZonesTable());
         tableSpecs.InsertLast(WatchRulesTable());
         tableSpecs.InsertLast(MapNbPlayers());
         tableSpecs.InsertLast(MapTimesTable());
@@ -88,6 +89,27 @@ namespace DB {
         }
     }
 
+    class ZonesTable : TableSpec {
+        ZonesTable() {
+            name = "zones";
+            InsertMigrations();
+            expectedVersion = migrations.Length;
+        }
+
+        void InsertMigrations() {
+            migrations.InsertLast("""
+                CREATE TABLE zones (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    zone_id VARCHAR(64) NOT NULL,
+                    name TEXT NOT NULL,
+                    created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX ix_zones_zone_id ON zones(zone_id);
+            """);
+        }
+    }
+
     class WatchRulesTable : TableSpec {
         WatchRulesTable() {
             name = "watchers";
@@ -150,54 +172,6 @@ namespace DB {
         }
     }
 
-    // class MapPlayerTimes : TableSpec {
-    //     MapPlayerTimes() {
-    //         name = "map_player_times";
-    //         InsertMigrations();
-    //         expectedVersion = migrations.Length;
-    //     }
-
-    //     void InsertMigrations() {
-    //         migrations.InsertLast("""
-    //             CREATE TABLE map_player_times (
-    //                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //                 map_uid VARCHAR(32) NOT NULL,
-    //                 time INTEGER NOT NULL,
-    //                 player_id VARCHAR(64) NOT NULL,
-    //                 created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    //                 FOREIGN KEY("map_uid") REFERENCES maps(uid),
-    //                 FOREIGN KEY("player_id") REFERENCES players(wsid)
-    //             );
-    //             CREATE INDEX ix_times_map_uid ON map_player_times(map_uid);
-    //             CREATE INDEX ix_times_player_id ON map_player_times(player_id);
-    //         """);
-    //     }
-    // }
-
-    // class MapPlayerRanks : TableSpec {
-    //     MapPlayerRanks() {
-    //         name = "map_player_ranks";
-    //         InsertMigrations();
-    //         expectedVersion = migrations.Length;
-    //     }
-
-    //     void InsertMigrations() {
-    //         migrations.InsertLast("""
-    //             CREATE TABLE map_player_ranks (
-    //                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //                 map_uid VARCHAR(32) NOT NULL,
-    //                 rank INTEGER NOT NULL,
-    //                 player_id VARCHAR(64) NOT NULL,
-    //                 created_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    //                 FOREIGN KEY("map_uid") REFERENCES maps(uid),
-    //                 FOREIGN KEY("player_id") REFERENCES players(wsid)
-    //             );
-    //             CREATE INDEX ix_times_map_uid ON map_player_ranks(map_uid);
-    //             CREATE INDEX ix_times_player_id ON map_player_ranks(player_id);
-    //         """);
-    //     }
-    // }
-
     class MapTimesTable : TableSpec {
         MapTimesTable() {
             name = "map_times";
@@ -221,6 +195,7 @@ namespace DB {
                 CREATE INDEX ix_times_map_uid ON map_times(map_uid);
                 CREATE INDEX ix_times_player_id ON map_times(player_id);
             """);
+            migrations.InsertLast("ALTER TABLE map_times ADD COLUMN zone_id VARCHAR(64) NOT NULL;");
         }
     }
 

@@ -75,4 +75,11 @@ class Watcher {
         s.Bind(6, id);
         s.Execute();
     }
+
+    bool UpdateAndSave() {
+        this.updated_ts = Time::Stamp;
+        this.run_count++;
+        this.Save();
+        return true;
+    }
 }

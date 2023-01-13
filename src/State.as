@@ -66,7 +66,13 @@ namespace State {
         return ret;
     }
 
-    MapTimeRow@ GetMyInfoOn(const string &in uid) {
+
+    void AddPb(MapTimeRow@ mt) {
+        mapToPb[mt.map_uid] = @mt;
+    }
+
+
+    MapTimeRow@ GetMyPb(const string &in uid) {
         // if (!mapToPb.Exists(uid))
         return cast<MapTimeRow>(mapToPb[uid]);
     }
